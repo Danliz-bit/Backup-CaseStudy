@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import DonutChart from '../components/DonutChart';
+import { useApp } from '../context/AppContext';
 import { 
   Package, 
   TrendingUp, 
@@ -9,7 +10,6 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   ShoppingCart,
-  Users,
   Zap
 } from 'lucide-react';
 
@@ -60,10 +60,10 @@ const topInventory = [
 ];
 
 const recentActivity = [
-  { action: 'New purchase order', item: 'Portable AC x50', time: '2m ago', color: 'bg-blue-100 text-blue-700' },
-  { action: 'Low stock alert', item: 'Smart Fan X200', time: '15m ago', color: 'bg-orange-100 text-orange-700' },
-  { action: 'Order completed', item: 'ORD-004', time: '1h ago', color: 'bg-green-100 text-green-700' },
-  { action: 'New product added', item: 'PO-1002 CoolTech', time: '3h ago', color: 'bg-purple-100 text-purple-700' },
+  { action: 'New purchase order', item: 'Portable AC x50', time: '2m ago', color: 'bg-blue-500 text-white' },
+  { action: 'Low stock alert', item: 'Smart Fan X200', time: '15m ago', color: 'bg-orange-500 text-white' },
+  { action: 'Order completed', item: 'ORD-004', time: '1h ago', color: 'bg-green-500 text-white' },
+  { action: 'New product added', item: 'PO-1002 CoolTech', time: '3h ago', color: 'bg-purple-500 text-white' },
 ];
 
 const TargetChart = () => (
@@ -103,6 +103,7 @@ const TargetChart = () => (
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { state, dispatch } = useApp();
 
   const quickActions = [
     { label: 'Add Product', icon: Package, color: 'bg-blue-50 text-blue-600 hover:bg-blue-100', path: '/products' },
@@ -178,12 +179,12 @@ export default function Dashboard() {
           <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500 font-medium">Current Progress</span>
-              <span className="font-bold text-gray-900">87%</span>
+              <span className="font-bold text-gray-900">67%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
               <div 
                 className="bg-gradient-to-r from-[#e6b800] to-[#ff8c00] h-2.5 rounded-full transition-all duration-1000" 
-                style={{ width: '87%' }} 
+                style={{ width: '67%' }} 
               />
             </div>
             <div className="flex justify-between text-xs text-gray-400">
@@ -196,9 +197,9 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Moving */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        <div className="bg-white rounded-2xl shadow-lg p-3">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Top Moving Items</h3>
-          <div className="space-y-3">
+          <div className="space-y-20">
             {[
               { name: 'Portable AC', sold: 230, trend: '+12%', color: 'bg-blue-500' },
               { name: 'Air Purifier', sold: 170, trend: '+8%', color: 'bg-emerald-500' },
@@ -231,7 +232,7 @@ export default function Dashboard() {
             </div>
             <button 
               onClick={() => navigate('/reports')}
-              className="text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-sm font-bold text-blue-400 hover:text-gray-600 transition-colors"
             >
               View All
             </button>

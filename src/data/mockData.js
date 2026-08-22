@@ -35,8 +35,48 @@ export const powerUsageData = [
 ];
 
 export const chatLogs = [
-  'Clara Dela Cruz', 'Angelm Stith', 'Tavlor Doe', 
-  'Liza Contastino', 'Mark Bautista', 'Diego Marasigan'
+  {
+    id: 1,
+    name: 'Clara Dela Cruz',
+    contact: 'clara.delacruz@example.com',
+    topic: 'Order status',
+    message: 'Hello Admin, may update na po ba sa order kong Portable AC?',
+  },
+  {
+    id: 2,
+    name: 'Angel Smith',
+    contact: 'angel.Smith@example.com',
+    topic: 'Product inquiry',
+    message: 'Available pa po ba ang Smart Fan X200?',
+  },
+  {
+    id: 3,
+    name: 'Taylor Doe',
+    contact: 'taylor.doe@example.com',
+    topic: 'Payment concern',
+    message: 'Admin, na-confirm na po ba ang payment ko?',
+  },
+  {
+    id: 4,
+    name: 'Liza Contastino',
+    contact: 'liza.contastino@example.com',
+    topic: 'Delivery schedule',
+    message: 'Kailan po madedeliver ang Filter Pack order ko?',
+  },
+  {
+    id: 5,
+    name: 'Mark Bautista',
+    contact: 'mark.bautista@example.com',
+    topic: 'Return request',
+    message: 'Puwede po ba mag-request ng return para sa Air Purifier?',
+  },
+  {
+    id: 6,
+    name: 'Diego Marasigan',
+    contact: 'diego.marasigan@example.com',
+    topic: 'Account help',
+    message: 'Admin, kailangan ko po ng tulong sa account ko.',
+  },
 ];
 
 export const purchaseHistory = [

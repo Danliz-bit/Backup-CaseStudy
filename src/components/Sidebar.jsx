@@ -16,8 +16,10 @@ export default function Sidebar() {
 
   return (
     <aside className="w-52 bg-wb-sidebar flex flex-col gap-2 p-4 min-h-screen border-r border-gray-600">
-      <div className="text-center font-bold text-lg mb-4 text-white tracking-wide">
+      <div className="text-center text-lg font-black tracking-wide mb-4 text-wb-white leading-tight">
         WALANG BROWNOUT
+        <br />
+        APPLIANCES
       </div>
       
       {navItems.map(item => (
@@ -37,10 +39,10 @@ export default function Sidebar() {
       
       <button
         onClick={() => navigate('/')}
-        className="mt-auto flex items-center gap-3 py-3 px-4 rounded-full font-bold text-sm bg-wb-orange text-white hover:bg-orange-600 transition-all hover:scale-105"
+        className="mt-auto flex items-center gap-3 py-3 px-4 rounded-full font-bold text-sm bg-wb-red text-white hover:bg-red-600 transition-all hover:scale-105"
       >
         <LogOut size={18} />
-        Back / Logout
+        Log Out
       </button>
     </aside>
   );

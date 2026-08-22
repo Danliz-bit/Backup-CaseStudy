@@ -1,22 +1,51 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InputField from '../components/InputField';
+import { useApp } from '../context/AppContext';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { state, dispatch } = useApp();
+  const [givenName, setGivenName] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const normalizedName = givenName.trim();
+    if (state.accounts.some((account) => account.givenName.toLowerCase() === normalizedName.toLowerCase())) {
+      setError('That account already exists.');
+      return;
+    }
+
+    dispatch({
+      type: 'ADD_ACCOUNT',
+      payload: { id: Date.now(), givenName: normalizedName },
+    });
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-wb-bg flex flex-col items-center justify-center p-8">
-      <form className="w-full max-w-md space-y-4" onSubmit={(e) => { e.preventDefault(); navigate('/dashboard'); }}>
-        <h2 className="text-3xl font-black text-white text-center mb-6">
-          Welcome to <span className="text-wb-yellow">Walang Brownout</span> Appliances..!
+      <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
+        <h2 className="text-3xl font-black text-white text-center mb-6 leading-tight">
+          Welcome to<br /> <span className="text-wb-yellow">Walang Brownout</span>
+          <br />
+          Appliances!
         </h2>
         
-        <InputField label="Username" required />
+        <InputField
+          label="Given name"
+          placeholder="e.g. Clara Dela Cruz"
+          value={givenName}
+          onChange={(e) => { setGivenName(e.target.value); setError(''); }}
+          required
+        />
         <InputField label="Password" type="password" required />
         <InputField label="Address" required />
         <InputField label="Contact number" type="tel" required />
         <InputField label="Confirm password" type="password" required />
         <InputField label="Emergency number" type="tel" required />
+        {error && <p className="text-wb-red text-sm font-bold" role="alert">{error}</p>}
         
         <div className="flex gap-4 pt-4">
           <button type="button" onClick={() => navigate('/')} className="wb-btn-orange flex-1">Back</button>

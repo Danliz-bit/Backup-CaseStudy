@@ -9,8 +9,10 @@ export default function Welcome() {
         <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight">
           Welcome to
         </h1>
-        <h2 className="text-4xl md:text-5xl font-black text-wb-yellow">
-          Walang Brownout
+        <h2 className="text-4xl md:text-5xl font-black leading-tight">
+          <span className="text-wb-yellow">Walang Brownout</span>
+          <br />
+          <span className="text-white">Appliances!</span>
         </h2>
       </div>
       
@@ -18,14 +20,14 @@ export default function Welcome() {
         onClick={() => navigate('/login')}
         className="w-72 md:w-96 py-5 bg-wb-yellow rounded-full text-white text-2xl font-black hover:scale-105 transition-transform shadow-2xl border-2 border-yellow-300"
       >
-        sign in
+        Sign in
       </button>
       
       <button
         onClick={() => navigate('/register')}
         className="w-72 md:w-96 py-5 bg-wb-yellow rounded-full text-white text-2xl font-black hover:scale-105 transition-transform shadow-2xl border-2 border-yellow-300"
       >
-        Create a account
+        Create account
       </button>
     </div>
   );
