@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import DonutChart from '../components/DonutChart';
 import { useApp } from '../context/AppContext';
+import { inventoryData } from '../data/mockData';
 import { 
   Package, 
   TrendingUp, 
@@ -13,53 +14,41 @@ import {
   Zap
 } from 'lucide-react';
 
-const stats = [
+const statStyles = [
   { 
     label: 'Total Inventory Value', 
-    value: '₱3,550.00', 
     icon: Package, 
     color: 'from-blue-500 to-blue-600',
     bg: 'bg-blue-500',
-    change: '+12%', 
-    up: true 
   },
   { 
     label: 'Total Items', 
-    value: '1,340', 
     icon: ShoppingCart, 
     color: 'from-emerald-500 to-emerald-600',
     bg: 'bg-emerald-500',
-    change: '+5%', 
-    up: true 
   },
   { 
     label: 'Low Stock Items', 
-    value: '26', 
     icon: AlertTriangle, 
     color: 'from-orange-500 to-orange-600',
     bg: 'bg-orange-500',
-    change: '-2', 
-    up: false 
   },
   { 
     label: 'Expiring Soon', 
-    value: '16', 
     icon: Calendar, 
     color: 'from-red-500 to-red-600',
     bg: 'bg-red-500',
-    change: '3 new', 
-    up: true 
   },
 ];
 
-const topInventory = [
+const defaultTopInventory = [
   { name: 'Portable AC Units', value: 35, color: '#3b82f6' },
   { name: 'Air Purifiers', value: 25, color: '#10b981' },
   { name: 'Filter', value: 20, color: '#f59e0b' },
   { name: 'Smart Thermostats', value: 20, color: '#ef4444' },
 ];
 
-const recentActivity = [
+const defaultRecentActivity = [
   { action: 'New purchase order', item: 'Portable AC x50', time: '2m ago', color: 'bg-blue-500 text-white' },
   { action: 'Low stock alert', item: 'Smart Fan X200', time: '15m ago', color: 'bg-orange-500 text-white' },
   { action: 'Order completed', item: 'ORD-004', time: '1h ago', color: 'bg-green-500 text-white' },
@@ -104,6 +93,66 @@ const TargetChart = () => (
 export default function Dashboard() {
   const navigate = useNavigate();
   const { state, dispatch } = useApp();
+  const baseInventoryItems = inventoryData.reduce((sum, row) => sum + row.total, 0);
+  const baseLowStockItems = inventoryData.reduce((sum, row) => sum + row.lowStock, 0);
+  const baseExpiringItems = inventoryData.reduce((sum, row) => sum + row.expiring, 0);
+  const addedStock = state.products.reduce(
+    (sum, product) => sum + Number(product.currentStock || product.stock || 0),
+    0,
+  );
+  const purchasedStock = state.purchases.reduce((sum, purchase) => sum + Number(purchase.quantity || 0), 0);
+  const expiringPurchases = state.purchases.filter((purchase) => {
+    if (!purchase.expirationDate) return false;
+    const expirationDate = new Date(purchase.expirationDate);
+    const daysUntilExpiration = (expirationDate - new Date()) / (1000 * 60 * 60 * 24);
+    return daysUntilExpiration >= 0 && daysUntilExpiration <= 30;
+  }).length;
+  const inventoryValue = state.products.reduce(
+    (sum, product) => sum + Number(product.currentStock || product.stock || 0) * Number(product.unitCost || product.price || 0),
+    0,
+  );
+  const stats = statStyles.map((stat, index) => ({
+    ...stat,
+    value: [
+      `₱${(3550 + inventoryValue).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      (baseInventoryItems + addedStock + purchasedStock).toLocaleString(),
+      Math.max(0, baseLowStockItems + state.products.filter((product) => Number(product.currentStock || product.stock || 0) <= Number(product.safetyStock || 0)).length).toLocaleString(),
+      (baseExpiringItems + expiringPurchases).toLocaleString(),
+    ][index],
+    change: index === 0 ? (inventoryValue ? 'Live' : '+12%') : index === 1 ? (addedStock || purchasedStock ? 'Live' : '+5%') : index === 2 ? 'Live' : 'Static',
+    up: index !== 2,
+  }));
+  const liveActivity = [
+    ...state.purchases.slice(0, 2).map((purchase) => ({
+      action: 'New purchase recorded',
+      item: `${purchase.product || 'Product'} x${purchase.quantity || 0}`,
+      time: 'Just now',
+      color: 'bg-purple-500 text-white',
+    })),
+    ...state.products.slice(-2).reverse().map((product) => ({
+      action: 'New product added',
+      item: product.name || product.id,
+      time: 'Just now',
+      color: 'bg-blue-500 text-white',
+    })),
+  ];
+  const recentActivity = [...liveActivity, ...defaultRecentActivity].slice(0, 4);
+  const addedCategoryStock = state.products.reduce((categories, product) => {
+    const category = product.categoryId || 'Other';
+    categories[category] = (categories[category] || 0) + Number(product.currentStock || product.stock || 0);
+    return categories;
+  }, {});
+  const liveCategories = Object.entries(addedCategoryStock)
+    .sort(([, firstValue], [, secondValue]) => secondValue - firstValue)
+    .slice(0, 4);
+  const liveCategoryTotal = liveCategories.reduce((sum, [, value]) => sum + value, 0);
+  const dashboardTopInventory = state.products.length > 0
+    ? liveCategories.map(([name, value], index) => ({
+      name,
+      value: Math.round((value / liveCategoryTotal) * 100),
+      color: defaultTopInventory[index % defaultTopInventory.length].color,
+    }))
+    : defaultTopInventory;
 
   const quickActions = [
     { label: 'Add Product', icon: Package, color: 'bg-blue-50 text-blue-600 hover:bg-blue-100', path: '/products' },
@@ -156,9 +205,9 @@ export default function Dashboard() {
             </button>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-            <DonutChart data={topInventory} size={180} stroke={40} />
+            <DonutChart data={dashboardTopInventory} size={180} stroke={40} />
             <div className="space-y-3 w-full sm:w-auto">
-              {topInventory.map((item, i) => (
+              {dashboardTopInventory.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="w-4 h-4 rounded-md shadow-sm" style={{ background: item.color }} />
                   <div className="flex-1">

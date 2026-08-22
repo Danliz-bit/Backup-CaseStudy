@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import Header from '../components/Header';
-import { notificationsData, powerUsageData, chatLogs } from '../data/mockData';
+import { notificationsData, powerUsageData } from '../data/mockData';
 import { MessageCircle, Send, User } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const tabs = [
   { id: 'notifications', label: 'Notifications' },
-  { id: 'orders', label: 'Orders' },
   { id: 'power', label: 'Power Usage' },
   { id: 'cancel', label: 'Cancel/Refund' },
   { id: 'payment', label: 'Payment' },
@@ -29,15 +28,6 @@ const statusBadge = (status) => {
   return <span className={`px-2 py-1 rounded text-xs font-bold text-white ${colors[status] || 'bg-gray-500'}`}>{status}</span>;
 };
 
-const orderStatusBadge = (status) => {
-  const colors = {
-    'PENDING': 'bg-yellow-500 text-black',
-    'COMPLETED': 'bg-green-600',
-    'CANCELLED': 'bg-red-600',
-  };
-  return <span className={`px-2 py-1 rounded text-xs font-bold text-white ${colors[String(status || '').toUpperCase()] || 'bg-gray-500'}`}>{status}</span>;
-};
-
 export default function Reports() {
   const [tab, setTab] = useState('notifications');
   const [selectedChat, setSelectedChat] = useState(null);
@@ -45,7 +35,6 @@ export default function Reports() {
   const [readChats, setReadChats] = useState([]);
   const [replyAs, setReplyAs] = useState('Admin');
   const { state, dispatch } = useApp();
-  const ordersData = state.orders.length > 0 ? state.orders : [];
 
   const sendReply = (event) => {
     event.preventDefault();
@@ -111,41 +100,6 @@ export default function Reports() {
           </table>
         )}
 
-        {tab === 'orders' && (
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b-2 border-black">
-                <th className="p-3 font-black">Order ID</th>
-                <th className="p-3 font-black">Customer Name</th>
-                <th className="p-3 font-black">Product</th>
-                <th className="p-3 font-black">Quantity</th>
-                <th className="p-3 font-black">Status</th>
-                <th className="p-3 font-black">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ordersData.length > 0 ? (
-                ordersData.map((row, i) => (
-                  <tr key={row.orderId || i} className="border-b border-gray-400">
-                    <td className="p-3">{row.orderId}</td>
-                    <td className="p-3">{row.customer}</td>
-                    <td className="p-3">{row.product}</td>
-                    <td className="p-3">{row.quantity}</td>
-                    <td className="p-3">{orderStatusBadge(row.status)}</td>
-                    <td className="p-3 font-bold text-wb-blue">{row.total || '—'}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="p-6 text-center text-gray-500 font-semibold">
-                    No orders yet.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
-
         {tab === 'power' && (
           <table className="w-full text-left">
             <thead>
@@ -192,7 +146,7 @@ export default function Reports() {
         {tab === 'chat' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-4">
             <div className="space-y-2">
-              {chatLogs.map((chat) => (
+              {state.chatLogs.map((chat) => (
                 <button
                   key={chat.id}
                   onClick={() => openChat(chat)}

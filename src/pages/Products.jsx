@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import { useApp } from '../context/AppContext';
+import { Pencil, Trash2 } from 'lucide-react';
 
 const emptyProductForm = {
   productName: '',
@@ -20,9 +21,11 @@ const emptyProductForm = {
 };
 
 export default function Products() {
+  const [view, setView] = useState('form');
   const [step, setStep] = useState(1);
   const { state, dispatch } = useApp();
   const [formData, setFormData] = useState(emptyProductForm);
+  const [editingId, setEditingId] = useState(null);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -30,7 +33,7 @@ export default function Products() {
   };
 
   const handleSave = () => {
-    const newProduct = {
+    const product = {
       id: formData.id || `PRD-${Date.now()}`,
       name: formData.productName,
       categoryId: formData.categoryId,
@@ -46,17 +49,62 @@ export default function Products() {
       status: formData.status || 'New',
     };
 
-    dispatch({ type: 'ADD_PRODUCT', payload: newProduct });
-    alert('Product saved successfully!');
+    dispatch({
+      type: editingId ? 'UPDATE_PRODUCT' : 'ADD_PRODUCT',
+      payload: product,
+    });
+    alert(editingId ? 'Product updated successfully!' : 'Product saved successfully!');
     setFormData(emptyProductForm);
+    setEditingId(null);
     setStep(1);
+    setView('history');
+  };
+
+  const handleEdit = (product) => {
+    setEditingId(product.id);
+    setFormData({
+      productName: product.name || '',
+      categoryId: product.categoryId || '',
+      id: product.id || '',
+      supplierId: product.supplierId || '',
+      unitCost: product.unitCost || '',
+      currentStock: product.currentStock || '',
+      recordedStock: product.recordedStock || '',
+      seasonal: product.seasonal || '',
+      safetyStock: product.safetyStock || '',
+      stock: product.stock || '',
+      sellingPrice: product.sellingPrice || '',
+      price: product.price || '',
+      status: product.status || '',
+    });
+    setStep(1);
+    setView('form');
+  };
+
+  const handleDelete = (productId) => {
+    if (!window.confirm('Delete this product record?')) return;
+    dispatch({ type: 'REMOVE_PRODUCT', payload: productId });
   };
 
   return (
     <div className="p-6 space-y-6 animate-fade-in">
       <Header title="Walang Brownout Appliances Products" />
 
+      <div className="flex gap-3">
+        <button onClick={() => setView('form')} className={`wb-btn ${view === 'form' ? 'wb-btn-yellow' : 'wb-btn-gray'}`}>
+          {editingId ? 'Edit Product' : 'New Product'}
+        </button>
+        <button onClick={() => setView('history')} className={`wb-btn ${view === 'history' ? 'wb-btn-yellow' : 'wb-btn-gray'}`}>
+          Product History
+        </button>
+      </div>
+
+      {view === 'form' ? (
       <div className="wb-card max-w-4xl mx-auto">
+        <div className="mb-4">
+          <h2 className="text-xl font-black">{editingId ? 'Edit Product' : 'New Product'}</h2>
+          <p className="text-sm text-gray-600">{editingId ? 'Update the selected product record.' : 'Record a new product.'}</p>
+        </div>
         <div className="flex items-center gap-2 mb-6">
           {[1, 2, 3].map((s) => (
             <div key={s} className={`h-2 flex-1 rounded-full ${s === step ? 'bg-wb-yellow' : 'bg-gray-400'}`} />
@@ -94,7 +142,7 @@ export default function Products() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <InputField label="Selling Price" type="number" labelColor="text-black" name="sellingPrice" value={formData.sellingPrice} onChange={handleChange} required />
             <InputField label="Price" type="number" labelColor="text-black" name="price" value={formData.price} onChange={handleChange} required />
-            <InputField label="New" labelColor="text-black" name="status" value={formData.status} onChange={handleChange} />
+            <InputField label="Category" labelColor="text-black" name="categoryId" value={formData.categoryId} onChange={handleChange} />
             <div className="md:col-span-2 flex justify-between pt-4">
               <button onClick={() => setStep(2)} className="wb-btn-orange">Back</button>
               <button onClick={handleSave} className="wb-btn-blue">Save Product</button>
@@ -103,9 +151,10 @@ export default function Products() {
         )}
       </div>
 
-      <div className="wb-card max-w-6xl mx-auto">
+      ) : (
+      <div className="wb-card max-w-6xl mx-auto overflow-x-auto">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-black text-black">Added Products</h3>
+          <h3 className="text-2xl font-black text-black">Product History</h3>
           <span className="text-sm font-bold text-gray-600">{state.products.length} item(s)</span>
         </div>
 
@@ -120,6 +169,7 @@ export default function Products() {
                   <th className="p-3 font-black">Supplier</th>
                   <th className="p-3 font-black">Stock</th>
                   <th className="p-3 font-black">Price</th>
+                  <th className="p-3 font-black">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,15 +181,26 @@ export default function Products() {
                     <td className="p-3">{product.supplierId || '-'}</td>
                     <td className="p-3">{product.currentStock || product.stock || 0}</td>
                     <td className="p-3 font-bold text-wb-black">₱{Number(product.price || product.sellingPrice || 0).toLocaleString()}</td>
+                    <td className="p-3">
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => handleEdit(product)} className="wb-btn-yellow px-3 py-2" aria-label={`Edit ${product.name}`} title="Edit product">
+                          <Pencil size={16} />
+                        </button>
+                        <button type="button" onClick={() => handleDelete(product.id)} className="wb-btn-red px-3 py-2" aria-label={`Delete ${product.name}`} title="Delete product">
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-gray-600 font-semibold">No products added yet.</p>
+          <p className="text-gray-600 font-semibold">No product history yet.</p>
         )}
       </div>
+      )}
     </div>
   );
 }

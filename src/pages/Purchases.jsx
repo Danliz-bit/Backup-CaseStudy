@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import InputField from '../components/InputField';
 import { purchaseHistory as initialPurchaseHistory } from '../data/mockData';
+import { useApp } from '../context/AppContext';
 import { Pencil, Trash2 } from 'lucide-react';
 
 const STORAGE_KEY = 'wb_purchase_history';
@@ -37,6 +38,7 @@ export default function Purchases() {
   const [purchaseHistory, setPurchaseHistory] = useState(getInitialPurchaseHistory);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const { dispatch } = useApp();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -72,6 +74,7 @@ export default function Purchases() {
     setPurchaseHistory((prev) => editingId
       ? prev.map((item) => item.id === editingId ? purchase : item)
       : [purchase, ...prev]);
+    dispatch({ type: editingId ? 'UPDATE_PURCHASE' : 'ADD_PURCHASE', payload: purchase });
     setFormData(emptyForm);
     setEditingId(null);
     setView('history');
@@ -96,6 +99,7 @@ export default function Purchases() {
   const handleDelete = (purchaseId) => {
     if (!window.confirm('Delete this purchase record?')) return;
     setPurchaseHistory((prev) => prev.filter((purchase) => purchase.id !== purchaseId));
+    dispatch({ type: 'REMOVE_PURCHASE', payload: purchaseId });
   };
 
   return (

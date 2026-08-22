@@ -11,12 +11,26 @@ export default function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (credentials.username !== state.adminCredentials.username || credentials.password !== state.adminCredentials.password) {
+    const username = credentials.username.trim();
+    const account = state.accounts.find((item) => (
+      (item.username || item.givenName || '').toLowerCase() === username.toLowerCase()
+      && item.password === credentials.password
+    ));
+    const isAdmin = username.toLowerCase() === state.adminCredentials.username.toLowerCase()
+      && credentials.password === state.adminCredentials.password;
+
+    if (!account && !isAdmin) {
       setError('Incorrect username or password.');
       return;
     }
 
-    dispatch({ type: 'LOGIN', payload: { username: state.adminCredentials.username, email: state.user?.email || 'WalangBrownoutAppliances@gmail.com' } });
+    dispatch({
+      type: 'LOGIN',
+      payload: {
+        username: account?.username || state.adminCredentials.username,
+        email: state.user?.email || 'WalangBrownoutAppliances@gmail.com',
+      },
+    });
     navigate('/dashboard');
   };
 

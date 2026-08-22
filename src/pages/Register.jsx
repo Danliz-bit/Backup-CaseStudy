@@ -7,19 +7,38 @@ export default function Register() {
   const navigate = useNavigate();
   const { state, dispatch } = useApp();
   const [givenName, setGivenName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const normalizedName = givenName.trim();
-    if (state.accounts.some((account) => account.givenName.toLowerCase() === normalizedName.toLowerCase())) {
-      setError('That account already exists.');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    const existingAccount = state.accounts.find((account) => (
+      account.givenName?.toLowerCase() === normalizedName.toLowerCase()
+    ));
+    if (existingAccount?.password) {
+      setError('That account already exists. Please sign in with its existing password.');
+      return;
+    }
+
+    if (existingAccount) {
+      dispatch({
+        type: 'UPDATE_ACCOUNT',
+        payload: { id: existingAccount.id, username: normalizedName, password },
+      });
+      navigate('/login');
       return;
     }
 
     dispatch({
       type: 'ADD_ACCOUNT',
-      payload: { id: Date.now(), givenName: normalizedName },
+      payload: { id: Date.now(), givenName: normalizedName, username: normalizedName, password },
     });
     navigate('/login');
   };
@@ -40,10 +59,22 @@ export default function Register() {
           onChange={(e) => { setGivenName(e.target.value); setError(''); }}
           required
         />
-        <InputField label="Password" type="password" required />
+        <InputField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => { setPassword(e.target.value); setError(''); }}
+          required
+        />
         <InputField label="Address" required />
         <InputField label="Contact number" type="tel" required />
-        <InputField label="Confirm password" type="password" required />
+        <InputField
+          label="Confirm password"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+          required
+        />
         <InputField label="Emergency number" type="tel" required />
         {error && <p className="text-wb-red text-sm font-bold" role="alert">{error}</p>}
         

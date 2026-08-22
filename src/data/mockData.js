@@ -24,7 +24,7 @@ export const ordersData = [
   { orderId: 'ORD-001', customer: 'Clara Dela Cruz', product: 'Portable AC', quantity: 2, status: 'Pending' },
   { orderId: 'ORD-002', customer: 'Mark Bautista', product: 'Air Purifier', quantity: 1, status: 'Pending' },
   { orderId: 'ORD-003', customer: 'Diego Marasigan', product: 'Smart Thermostat', quantity: 3, status: 'Pending' },
-  { orderId: 'ORD-004', customer: 'Liza Contastino', product: 'Filter Pack', quantity: 5, status: 'Completed' },
+  { orderId: 'ORD-004', customer: 'Liza Constantino', product: 'Filter Pack', quantity: 5, status: 'Completed' },
 ];
 
 export const powerUsageData = [
@@ -58,8 +58,8 @@ export const chatLogs = [
   },
   {
     id: 4,
-    name: 'Liza Contastino',
-    contact: 'liza.contastino@example.com',
+    name: 'Liza Constantino',
+    contact: 'liza.constantino@example.com',
     topic: 'Delivery schedule',
     message: 'Kailan po madedeliver ang Filter Pack order ko?',
   },
